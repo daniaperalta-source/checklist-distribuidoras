@@ -614,6 +614,98 @@ function defaultConfig(){
   };
 }
 
+/* ---------- Líneas agregadas después de publicar (semillas) ----------
+   Cada semilla se suma UNA sola vez a la lista que ya está en la hoja, sin borrar nada.
+   Queda marcada en config.semillas; si después se borra una línea en Modo edición, no vuelve a aparecer. */
+const GRUPOS_FORMADORA = () => [
+  {id:'lim', nombre:'Limpieza', falla:'Mecánico', nota:'Hacerlo con la máquina apagada.'},
+  {id:'lub', nombre:'Lubricación', falla:'Mecánico', nota:'Hacerlo con la máquina apagada.'},
+  {id:'ace', nombre:'Aceite', falla:'Hidráulico', nota:''},
+  {id:'rev', nombre:'Revisión de la máquina', falla:'Mecánico', nota:''},
+  {id:'seg', nombre:'Seguridad', falla:'Eléctrico', nota:''}
+];
+const SEMILLAS = [
+  {id:'zacapa-lineas-2026-11', dist:'zacapa', lineas:() => [
+  {id:"t-101", nombre:"T-101", equipo:"Formadora de lámina trapezoidal T-101", actividades:[
+    {"id": "zcp-t101-01", "cat": "lim", "texto": "Limpiar el eje y la base donde se coloca la bobina", "criterio": "Bobina · con la máquina apagada."},
+    {"id": "zcp-t101-02", "cat": "lim", "texto": "Limpiar la mesa y las guías por donde entra la lámina", "criterio": "Entrada · con la máquina apagada."},
+    {"id": "zcp-t101-03", "cat": "lim", "texto": "Limpiar los rodillos con trapo y el limpiador autorizado, y ver si tienen golpes o rayones", "criterio": "Rodillos · con la máquina apagada."},
+    {"id": "zcp-t101-04", "cat": "lim", "texto": "Sacar la basura, retazos y polvo de debajo de los rodillos", "criterio": "Rodillos · con la máquina apagada."},
+    {"id": "zcp-t101-05", "cat": "lub", "texto": "Ponerle grasa a los puntos marcados (eje de la bobina y rodillos)", "criterio": "Grasa · con la máquina apagada."},
+    {"id": "zcp-t101-06", "cat": "lub", "texto": "Ponerle aceite a la cadena", "criterio": "Cadena · con la máquina apagada."},
+    {"id": "zcp-t101-07", "cat": "rev", "texto": "Ver que las marcas de los tornillos estén alineadas y que no falte ninguno", "criterio": "Tornillos · con la máquina apagada."},
+    {"id": "zcp-t101-08", "cat": "rev", "texto": "Escuchar si la máquina hace ruidos raros o vibra más de lo normal", "criterio": "Máquina · con la máquina encendida."},
+    {"id": "zcp-t101-09", "cat": "lim", "texto": "Limpiar el motor y su rejilla de aire", "criterio": "Motor · con la máquina apagada."},
+    {"id": "zcp-t101-10", "cat": "ace", "texto": "Ver en las mirillas (ventanitas) que el aceite de la caja del motor y del tanque hidráulico esté en su nivel", "criterio": "Aceite · con la máquina apagada."},
+    {"id": "zcp-t101-11", "cat": "ace", "texto": "Buscar fugas o goteo de aceite en mangueras, motor y debajo de la máquina", "criterio": "Aceite · con la máquina encendida."},
+    {"id": "zcp-t101-12", "cat": "lim", "texto": "Limpiar las cuchillas de la cortadora", "criterio": "Cortadora · con la máquina apagada."},
+    {"id": "zcp-t101-13", "cat": "rev", "texto": "Ver que las piezas salgan bien cortadas", "criterio": "Cortadora · con la máquina encendida."},
+    {"id": "zcp-t101-14", "cat": "lim", "texto": "Limpiar la mesa de salida", "criterio": "Salida · con la máquina apagada."},
+    {"id": "zcp-t101-15", "cat": "seg", "texto": "Probar los botones de paro de emergencia", "criterio": "Seguridad · con la máquina encendida."},
+    {"id": "zcp-t101-16", "cat": "seg", "texto": "Ver que las protecciones (guardas) estén puestas", "criterio": "Seguridad · con la máquina apagada."},
+    {"id": "zcp-t101-17", "cat": "lim", "texto": "Dejar ordenada y limpia el área de trabajo", "criterio": "Área · con la máquina apagada."}
+  ]},
+  {id:"ondugrek", nombre:"Ondugrek", equipo:"Formadora de lámina ondulada ONDUGREK", actividades:[
+    {"id": "zcp-ond-01", "cat": "lim", "texto": "Limpiar el eje y la base donde se coloca la bobina", "criterio": "Bobina · con la máquina apagada."},
+    {"id": "zcp-ond-02", "cat": "lim", "texto": "Limpiar la mesa y las guías por donde entra la lámina", "criterio": "Entrada · con la máquina apagada."},
+    {"id": "zcp-ond-03", "cat": "lim", "texto": "Limpiar los rodillos ondulados con trapo y el limpiador autorizado, y ver si tienen golpes o rayones", "criterio": "Rodillos · con la máquina apagada."},
+    {"id": "zcp-ond-04", "cat": "lim", "texto": "Sacar la basura, retazos y polvo de debajo de los rodillos", "criterio": "Rodillos · con la máquina apagada."},
+    {"id": "zcp-ond-05", "cat": "lub", "texto": "Ponerle grasa a los puntos marcados (eje de la bobina y rodillos)", "criterio": "Grasa · con la máquina apagada."},
+    {"id": "zcp-ond-06", "cat": "lub", "texto": "Ponerle aceite a la cadena", "criterio": "Cadena · con la máquina apagada."},
+    {"id": "zcp-ond-07", "cat": "rev", "texto": "Ver que las marcas de los tornillos estén alineadas y que no falte ninguno", "criterio": "Tornillos · con la máquina apagada."},
+    {"id": "zcp-ond-08", "cat": "rev", "texto": "Escuchar si la máquina hace ruidos raros o vibra más de lo normal", "criterio": "Máquina · con la máquina encendida."},
+    {"id": "zcp-ond-09", "cat": "lim", "texto": "Limpiar el motor y su rejilla de aire", "criterio": "Motor · con la máquina apagada."},
+    {"id": "zcp-ond-10", "cat": "ace", "texto": "Ver en las mirillas (ventanitas) que el aceite de la caja del motor y del tanque hidráulico esté en su nivel", "criterio": "Aceite · con la máquina apagada."},
+    {"id": "zcp-ond-11", "cat": "ace", "texto": "Buscar fugas o goteo de aceite en mangueras, motor y debajo de la máquina", "criterio": "Aceite · con la máquina encendida."},
+    {"id": "zcp-ond-12", "cat": "lim", "texto": "Limpiar las cuchillas de la cortadora", "criterio": "Cortadora · con la máquina apagada."},
+    {"id": "zcp-ond-13", "cat": "rev", "texto": "Ver que las piezas salgan bien cortadas", "criterio": "Cortadora · con la máquina encendida."},
+    {"id": "zcp-ond-14", "cat": "lim", "texto": "Limpiar la mesa de salida", "criterio": "Salida · con la máquina apagada."},
+    {"id": "zcp-ond-15", "cat": "seg", "texto": "Probar los botones de paro de emergencia", "criterio": "Seguridad · con la máquina encendida."},
+    {"id": "zcp-ond-16", "cat": "seg", "texto": "Ver que las protecciones (guardas) estén puestas", "criterio": "Seguridad · con la máquina apagada."},
+    {"id": "zcp-ond-17", "cat": "lim", "texto": "Dejar ordenada y limpia el área de trabajo", "criterio": "Área · con la máquina apagada."}
+  ]},
+  {id:"costanera", nombre:"Costanera", equipo:"Máquina de costanera 3x2, 4x2 y 6x2", actividades:[
+    {"id": "zcp-cos-01", "cat": "lim", "texto": "Limpiar el eje y la base donde se coloca la bobina", "criterio": "Bobina · con la máquina apagada."},
+    {"id": "zcp-cos-02", "cat": "lim", "texto": "Limpiar la mesa y las guías por donde entra la lámina", "criterio": "Entrada · con la máquina apagada."},
+    {"id": "zcp-cos-03", "cat": "lim", "texto": "Limpiar los rodillos que enderezan la lámina", "criterio": "Enderezador · con la máquina apagada."},
+    {"id": "zcp-cos-04", "cat": "lim", "texto": "Limpiar la perforadora y sacar los recortes", "criterio": "Perforadora · con la máquina apagada."},
+    {"id": "zcp-cos-05", "cat": "lim", "texto": "Limpiar los rodillos con trapo y el limpiador autorizado, y ver si tienen golpes o rayones", "criterio": "Rodillos · con la máquina apagada."},
+    {"id": "zcp-cos-06", "cat": "lim", "texto": "Sacar la basura, retazos y polvo de debajo de los rodillos", "criterio": "Rodillos · con la máquina apagada."},
+    {"id": "zcp-cos-07", "cat": "lub", "texto": "Ponerle grasa a los puntos marcados (eje de la bobina y rodillos)", "criterio": "Grasa · con la máquina apagada."},
+    {"id": "zcp-cos-08", "cat": "lub", "texto": "Ponerle aceite a la cadena", "criterio": "Cadena · con la máquina apagada."},
+    {"id": "zcp-cos-09", "cat": "rev", "texto": "Ver que las marcas de los tornillos estén alineadas y que no falte ninguno", "criterio": "Tornillos · con la máquina apagada."},
+    {"id": "zcp-cos-10", "cat": "rev", "texto": "Escuchar si la máquina hace ruidos raros o vibra más de lo normal", "criterio": "Máquina · con la máquina encendida."},
+    {"id": "zcp-cos-11", "cat": "lim", "texto": "Limpiar el motor y su rejilla de aire", "criterio": "Motor · con la máquina apagada."},
+    {"id": "zcp-cos-12", "cat": "ace", "texto": "Ver en las mirillas (ventanitas) que el aceite de la caja del motor y del tanque hidráulico esté en su nivel", "criterio": "Aceite · con la máquina apagada."},
+    {"id": "zcp-cos-13", "cat": "ace", "texto": "Buscar fugas o goteo de aceite en mangueras, motor y debajo de la máquina", "criterio": "Aceite · con la máquina encendida."},
+    {"id": "zcp-cos-14", "cat": "lim", "texto": "Limpiar las cuchillas de la cortadora", "criterio": "Cortadora · con la máquina apagada."},
+    {"id": "zcp-cos-15", "cat": "rev", "texto": "Ver que las piezas salgan bien cortadas", "criterio": "Cortadora · con la máquina encendida."},
+    {"id": "zcp-cos-16", "cat": "lim", "texto": "Limpiar la mesa de salida", "criterio": "Salida · con la máquina apagada."},
+    {"id": "zcp-cos-17", "cat": "seg", "texto": "Probar los botones de paro de emergencia", "criterio": "Seguridad · con la máquina encendida."},
+    {"id": "zcp-cos-18", "cat": "seg", "texto": "Ver que las protecciones (guardas) estén puestas", "criterio": "Seguridad · con la máquina apagada."},
+    {"id": "zcp-cos-19", "cat": "lim", "texto": "Guardar limpios, aceitados y marcados los rodillos de las medidas que no se están usando (3x2, 4x2, 6x2)", "criterio": "Rodillos de otras medidas · con la máquina apagada."},
+    {"id": "zcp-cos-20", "cat": "lim", "texto": "Dejar ordenada y limpia el área de trabajo", "criterio": "Área · con la máquina apagada."}
+  ]}
+
+  ].map(l => ({...l, grupos:GRUPOS_FORMADORA()}))}
+];
+function aplicarSemillas(c){
+  if (!c || !Array.isArray(c.distribuidoras)) return false;
+  if (!Array.isArray(c.semillas)) c.semillas = [];
+  let cambio = false;
+  for (const s of SEMILLAS){
+    if (c.semillas.includes(s.id)) continue;
+    const d = c.distribuidoras.find(x => x.id === s.dist);
+    if (d){
+      if (!Array.isArray(d.lineas)) d.lineas = [];
+      s.lineas().forEach(l => { if (!d.lineas.some(x => x.id === l.id || slug(x.nombre) === slug(l.nombre))) d.lineas.push(l); });
+    }
+    c.semillas.push(s.id); cambio = true;
+  }
+  return cambio;
+}
+const semillasEn = c => !!(c && Array.isArray(c.semillas) && SEMILLAS.every(s => c.semillas.includes(s.id)));
+
 /* ---------- Utilidades ---------- */
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -667,6 +759,8 @@ const catIcon = c => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
 
 /* ---------- Estado ---------- */
 let config = lsGet(LS.config, null) || defaultConfig();
+aplicarSemillas(config);
+let semillasPend = false;   // la hoja todavía no tiene las líneas nuevas guardadas
 let draft = null;            // copia en edición
 let editing = false, pin = '', dirty = false;
 let ultimas = lsGet(LS.ultimas, {});
@@ -710,7 +804,8 @@ async function loadRemote(){
     conn = 'on'; remoteLoaded = true; remoteEmpty = !(res.config && res.config.distribuidoras);
     if (res.config && res.config.distribuidoras && (res.config.version || 1) >= 2 && !editing){
       const localT = Date.parse(config.updatedAt || 0) || 0, remT = Date.parse(res.config.updatedAt || 0) || 0;
-      if (remT >= localT){ config = res.config; lsSet(LS.config, config); }
+      semillasPend = !semillasEn(res.config);
+      if (remT >= localT){ config = res.config; aplicarSemillas(config); lsSet(LS.config, config); }
     }
     if (res.ultimas){ for (const k in res.ultimas){ if (!ultimas[k] || res.ultimas[k] > ultimas[k]) ultimas[k] = res.ultimas[k]; } lsSet(LS.ultimas, ultimas); }
     paintConn(); route(true);
@@ -1123,9 +1218,9 @@ function askPin(){
       const v = $('#pinIn').value.trim();
       if (hashPin(v) !== (config.pinHash || DEFAULT_PIN_HASH)){ $('#pinErr').textContent = 'Contraseña incorrecta.'; $('#pinIn').select(); return false; }
       if (API_URL && !remoteLoaded){ $('#pinErr').textContent = 'Sin conexión con la hoja. Conéctese a internet y espere a que arriba diga Conectado.'; loadRemote(); return false; }
-      pin = v; editing = true; draft = JSON.parse(JSON.stringify(config)); dirty = !!(API_URL && remoteEmpty);
+      pin = v; editing = true; draft = JSON.parse(JSON.stringify(config)); dirty = !!(API_URL && (remoteEmpty || semillasPend));
       paintLock(); route();
-      if (dirty){ $('#editMsg').textContent = 'La hoja todavía no tiene la lista. Pulse Guardar cambios para publicarla.'; toast('Pulse Guardar cambios para guardar la lista en la hoja'); }
+      if (dirty){ $('#editMsg').textContent = remoteEmpty ? 'La hoja todavía no tiene la lista. Pulse Guardar cambios para publicarla.' : 'Hay líneas nuevas que todavía no están en la hoja. Pulse Guardar cambios para guardarlas.'; toast('Pulse Guardar cambios para guardar la lista en la hoja'); }
       else toast('Modo edición activo');
     }, '#pinIn');
 }
@@ -1159,7 +1254,7 @@ async function saveConfig(){
       conn = 'on';
     }catch(e){ conn = 'off'; paintConn(); toast('No se pudo guardar en la hoja. Revise la conexión e intente otra vez.', true); paintDirty(); return; }
   }
-  config = clean; draft = JSON.parse(JSON.stringify(clean)); lsSet(LS.config, config); remoteEmpty = false;
+  config = clean; draft = JSON.parse(JSON.stringify(clean)); lsSet(LS.config, config); remoteEmpty = false; semillasPend = false;
   dirty = false; paintConn(); paintDirty(); route(true);
   toast(API_URL ? 'Cambios guardados para todos los operadores' : 'Cambios guardados en este equipo (falta conectar Apps Script)');
 }
@@ -1234,7 +1329,7 @@ function loadXLSX(){
 const norm = s => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
 const COLS = {
   grupo:    ['grupo','categoria','seccion','sistema','area'],
-  actividad:['actividad','actividades','descripcion','tarea','descripcion de la actividad','que revisar'],
+  actividad:['actividad','actividades','descripcion','tarea','descripcion de la actividad','que revisar','que hacer'],
   criterio: ['criterio','explicacion','como verificar','metodo','estandar','detalle'],
   falla:    ['tipo de falla','falla','tipo'],
   aviso:    ['aviso','aviso del grupo','nota','precaucion']
