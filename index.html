@@ -61,6 +61,7 @@
   --toast-bg:#ffffff;
   --toast-text:#0b0b0d;
   --code-stroke:#ffffff14;
+  --dup-border:#6b5418;
   --radius:6px;
   --ease-out:cubic-bezier(0.23,1,0.32,1);
   --ease-move:cubic-bezier(0.77,0,0.175,1);
@@ -247,6 +248,28 @@ main{max-width:1270px;margin:0 auto;padding:16px var(--gutter) 64px}
 .ncp .hint{margin:6px 0 0;font-size:13px;color:var(--bad-label)}
 @keyframes reveal{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
 
+/* Aviso de "esto ya se reportó" dentro del panel de No cumple */
+.dup{margin:0 0 14px;border:1px solid var(--line);border-radius:5px;padding:13px 14px;background:var(--surface-2)}
+.dup.ask{background:var(--warn-tint);border-color:var(--dup-border)}
+.ot-row.need .dup.ask{border-color:var(--bad);box-shadow:0 0 0 1px var(--bad)}
+.dup-h{display:flex;align-items:center;gap:8px;margin:0;font-weight:700;font-size:16px;color:var(--warn-text)}
+.dup-h svg,.dup-r svg{width:18px;height:18px;flex-shrink:0}
+.dup-m{margin:4px 0 0;font-size:13.5px;color:var(--muted)}
+.dup-t{margin:8px 0 0;padding:9px 11px;background:var(--surface);border:1px solid var(--line);border-radius:4px;font-size:14.5px;line-height:1.4;overflow-wrap:anywhere}
+.dup-t span{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.dup-v{display:flex;align-items:flex-start;gap:7px;margin:6px 0 0;font-size:14px;color:var(--warn-text);font-variant-numeric:tabular-nums}
+.dup-v svg{width:16px;height:16px;flex-shrink:0;margin-top:2px}
+.dup-q{margin:11px 0 8px;font-weight:600;font-size:15px}
+.dup-b{display:flex;gap:8px;flex-wrap:wrap}
+.dup-b .btn{flex:1 1 210px}
+.dup-l{display:inline-block;margin-top:10px;padding:4px 0;background:none;border:0;color:var(--muted);font-size:14px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.dup-r{display:flex;align-items:flex-start;gap:10px}
+.dup-r svg{margin-top:2px;color:var(--ok-text)}
+.dup-r.si svg{color:var(--warn-text)}
+.dup-r p{margin:0;flex:1;min-width:0;font-size:14.5px;overflow-wrap:anywhere}
+.dup-r small{display:block;margin-top:4px;font-size:13px;color:var(--muted)}
+.dup-r .dup-l{margin:0;flex-shrink:0}
+@media (hover:hover) and (pointer:fine){.dup-l:hover{color:var(--text)}}
 .submitbar{margin-top:30px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
 .submitbar p{margin:0;flex:1;min-width:220px;color:var(--muted);font-size:15px}
 .submitbar p b{color:var(--text)}
@@ -467,6 +490,7 @@ body.light{
   --toast-bg:#10131c;
   --toast-text:#ffffff;
   --code-stroke:#10131c12;
+  --dup-border:#e9c77a;
 }
 body.light .lcard,body.light .act,body.light .fields,body.light .submitbar,body.light .done,body.light .emptybox,body.light .ed-row{box-shadow:0 1px 2px #10131c0f,0 2px 8px -4px #10131c14}
 body.light ::-webkit-scrollbar-thumb{border-color:var(--bg)}
@@ -551,6 +575,10 @@ body.light ::-webkit-scrollbar-thumb{border-color:var(--bg)}
    ===================================================================== */
 const API_URL = 'https://script.google.com/macros/s/AKfycbxIMpn7F_s8znc54wRKmAAZ5lDFRPKQ3aYs1fBRbR3cD6W3Wf0Ihr4RdaXAIzMv_hw5/exec';
 
+/* Dashboard de inspecciones de distribuidoras: de ahí se consulta qué está abierto
+   para avisar "esto ya se reportó" antes de crear un hallazgo repetido. */
+const DASHBOARD_URL = 'https://script.google.com/macros/s/AKfycbztLt5DyUMN_R66HumUDT-Crb1bvF83YGLdLV3dJrGEiiaZojEZ9qzcYGQYTI0VcvBG/exec';
+
 /* Contraseña de edición por defecto: 3405 (se cambia desde Modo edición). */
 const DEFAULT_PIN_HASH = '1wcwjng4p9s';
 
@@ -559,7 +587,8 @@ const LS = {
   queue:   'distrib-autonomo-pendientes-v1',
   oper:    'distrib-autonomo-operador',
   draft:   'distrib-autonomo-borrador-v2',
-  ultimas: 'distrib-autonomo-ultimas-v1'
+  ultimas: 'distrib-autonomo-ultimas-v1',
+  abiertas:'distrib-autonomo-abiertas-v1'
 };
 
 /* ---------- Categorías (orden fijo en el checklist) ---------- */
@@ -744,6 +773,7 @@ const ICON = {
   user:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1-4 4-5.5 7-5.5s6 1.5 7 5.5"/></svg>',
   upload:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M7 9l5-5 5 5"/><path d="M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></svg>',
   download:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5"/><path d="M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></svg>',
+  repeat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12"/><path d="M7 22l-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/></svg>',
   gear:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>'
 };
 const ICON_GRUPO = '<path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6h.01M4 12h.01M4 18h.01"/>';
@@ -825,7 +855,7 @@ async function flushQueue(){
   }
   paintConn();
 }
-window.addEventListener('online', () => { loadRemote(); });
+window.addEventListener('online', () => { loadRemote(); const {d} = currentDL(); if (d && abiertasPor[d.id]) abiertasPor[d.id].sesion = false; if (d) cargaAbiertas(d.id); });
 
 /* ---------- Avisos ---------- */
 let toastT;
@@ -855,7 +885,7 @@ function route(soft){
   document.body.classList.add('light');
   app.innerHTML = `<div class="${animate ? 'view' : ''}">${html}</div>`;
   if (!soft) window.scrollTo(0, 0);
-  if (p[2] === 'l' && !editing) paintProgress();
+  if (p[2] === 'l' && !editing){ paintProgress(); if (p[4] !== 'ok') cargaAbiertas(p[1]); }
 }
 window.addEventListener('hashchange', () => {
   if (!location.hash.endsWith('/ok')) lastDone = null;
@@ -943,6 +973,139 @@ function viewDistrib(d){
   ${body}`;
 }
 
+/* ---------- Hallazgos que ya están abiertos en el dashboard ---------- */
+/* Se traen al abrir una línea; si no hay señal se usa la última copia guardada en el teléfono. */
+let abiertasPor = lsGet(LS.abiertas, {});
+const trayendo = new Set();
+async function cargaAbiertas(dId){
+  if (!DASHBOARD_URL || !dId || trayendo.has(dId)) return;
+  const prev = abiertasPor[dId];
+  if (prev && prev.sesion && Date.now() - prev.t < 60000) return;
+  trayendo.add(dId);
+  try{
+    const r = await fetch(DASHBOARD_URL + '?' + new URLSearchParams({abiertas:'1', a:dId, t:Date.now()}), {cache:'no-store'});
+    const res = await r.json();
+    if (res && Array.isArray(res.abiertas)){
+      abiertasPor[dId] = {t:Date.now(), sesion:true, lista:res.abiertas};
+      const guardar = {}; for (const k in abiertasPor) guardar[k] = {t:abiertasPor[k].t, lista:abiertasPor[k].lista};
+      lsSet(LS.abiertas, guardar);
+      revisaRepetidosVisibles();
+    }
+  }catch(e){ /* sin señal: se usa la copia guardada */ }
+  finally{ trayendo.delete(dId); }
+}
+/* comparación de textos: palabras clave sin acentos, sin plurales y sin palabras de relleno */
+const nrmT = s => String(s ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+const VACIAS = new Set(('el la los las lo le les un una unos unas de del al en y e o u que se con sin por para su sus es son esta estan este estos ' +
+  'esto esa ese eso hay no si mas muy ya tiene tienen como pero otro otra cuando donde desde hasta sobre entre parte lado todo toda todos ' +
+  'todas cada ver revisar hace hacen mucho mucha poco raro mal estado falta pieza equipo maquina linea').split(' '));
+function raiz(w){
+  if (/^\d+$/.test(w)) return w;
+  if (w.length > 4 && /es$/.test(w)) w = w.slice(0, -2); else if (w.length > 3 && /s$/.test(w)) w = w.slice(0, -1);
+  if (w.length > 4 && /[aeo]$/.test(w)) w = w.slice(0, -1);
+  return w.slice(0, 5);
+}
+function palabrasClave(t, quitar){
+  const fuera = new Set();
+  (quitar || []).forEach(q => nrmT(q).split(' ').forEach(w => { if (w) fuera.add(raiz(w)); }));
+  return new Set(nrmT(t).split(' ').filter(w => w.length > 2 && !VACIAS.has(w)).map(raiz).filter(w => w.length > 2 && !fuera.has(w)));
+}
+function similitud(a, b, quitar){
+  const A = palabrasClave(a, quitar), B = palabrasClave(b, quitar);
+  if (!A.size || !B.size) return 0;
+  let n = 0; A.forEach(w => { if (B.has(w)) n++; });
+  /* parecido = lo mayor entre: palabras en común sobre el total (Dice) y, si comparten 2 o más,
+     cuántas del texto más corto aparecen en el otro (así un texto largo no esconde el parecido) */
+  const dice = 2 * n / (A.size + B.size), corto = Math.min(A.size, B.size);
+  return n >= 2 && corto >= 2 ? Math.max(dice, n / corto) : dice;
+}
+/* en la nota del dashboard el checklist deja "Actividad: <texto> · Obs.: ..." */
+function actividadDe(nota){ const m = String(nota || '').match(/actividad:\s*([^·\]]*)/i); return m ? m[1].trim() : ''; }
+function detectaRepetido(d, l, a, r){
+  const lista = ((abiertasPor[d.id] || {}).lista || []).filter(o => nrmT(o.linea) === nrmT(l.nombre));
+  if (!lista.length) return null;
+  let m = lista.find(o => nrmT(actividadDe(o.nota)) === nrmT(a.texto)), por = 'actividad';
+  if (!m && (r.desc || '').trim().length >= 6){
+    let mejor = 0; por = 'descripcion';
+    const quitar = [l.nombre, l.equipo, r.equipo];
+    lista.forEach(o => {
+      const s = similitud(`${r.motivo || ''} ${r.desc}`, o.observacion, quitar);
+      const umbral = r.equipo && nrmT(o.area) === nrmT(r.equipo) ? 0.6 : 0.67;
+      if (s >= umbral && s > mejor){ mejor = s; m = o; }
+    });
+  }
+  return m ? {uid:m.uid, folio:m.folio || '', fecha:m.fecha || '', texto:m.observacion || '', status:m.status || 'Abierta',
+              veces:Math.max(1, Number(m.veces) || 1),
+              fechas:Array.isArray(m.fechas) && m.fechas.length ? m.fechas : [m.fecha, m.ultima].filter(Boolean),
+              por, decision:null} : null;
+}
+/* vuelve a buscar en las filas No cumple que todavía no tienen respuesta */
+function revisaRepetido(d, l, a, r){
+  if (!r || r.v !== 'nc') return false;
+  const ab = abiertasPor[d.id];
+  if (r.dup && ab && ab.sesion && !(ab.lista || []).some(o => o.uid === r.dup.uid)){
+    r.dup = null; r.dupCerrado = true;      // lo que estaba guardado ya se cerró: se vuelve a buscar
+  }
+  if (r.dup && (r.dup.decision || r.dup.por === 'actividad')) return false;
+  const nd = detectaRepetido(d, l, a, r), cerrado = !!r.dupCerrado;
+  delete r.dupCerrado;
+  if ((nd && nd.uid) === (r.dup && r.dup.uid)) return cerrado;
+  r.dup = nd; return true;
+}
+function revisaRepetidosVisibles(){
+  if (editing || !$('#pDone')) return;
+  const {d, l} = currentDL(); if (!d || !l) return;
+  const dr = getDraft(d, l); let cambio = false;
+  orderedActs(l).forEach(a => {
+    const r = dr.resp[a.id];
+    if (!revisaRepetido(d, l, a, r)) return;
+    cambio = true; repintaDup(a, r, l);
+  });
+  if (cambio) saveDrafts(dr);
+}
+/* pinta el aviso; si el panel cambia de forma (compacto o completo) se repinta la fila entera */
+function repintaDup(a, r, l){
+  const row = document.getElementById('a-' + a.id); if (!row) return;
+  const compacto = !row.querySelector('[data-act="desc"]'), debe = !!(r.dup && r.dup.decision === 'no');
+  if (compacto === debe){ const slot = row.querySelector('[data-dupslot]'); if (slot) slot.innerHTML = dupBox(r); return; }
+  const w = document.createElement('div'); w.innerHTML = rowHTML(a, Number(row.dataset.n), r, l);
+  const fresh = w.firstElementChild; const pan = fresh.querySelector('.ot-nc'); if (pan) pan.style.animation = 'none';
+  row.replaceWith(fresh);
+}
+/* "10 nov, 14 nov y 18 nov 2026" */
+function textoFechas(f){
+  const cuenta = {};
+  (f || []).filter(x => /^\d{4}-\d{2}-\d{2}/.test(x)).forEach(x => { x = x.slice(0, 10); cuenta[x] = (cuenta[x] || 0) + 1; });
+  f = Object.keys(cuenta).sort();
+  if (!f.length) return '';
+  const mismoAnio = new Set(f.map(x => x.slice(0, 4))).size === 1;
+  let l = f.map((x, i) => ((mismoAnio && i < f.length - 1) ? fechaLarga(x).replace(/\s\d{4}$/, '') : fechaLarga(x)) + (cuenta[x] > 1 ? ` (${cuenta[x]} veces)` : ''));
+  if (l.length > 6) l = [l[0], '…', ...l.slice(-4)];
+  return l.length === 1 ? l[0] : l.slice(0, -1).join(', ') + ' y ' + l[l.length - 1];
+}
+function dupBox(r){
+  const u = r && r.dup; if (!u) return '';
+  const ref = esc(u.folio || 'el dashboard');
+  if (!u.decision){
+    const meta = [u.folio, fechaLarga(u.fecha), u.status].filter(Boolean).join(', ');
+    return `<div class="dup ask" role="alert">
+      <p class="dup-h">${ICON.warn}Esto ya se reportó</p>
+      <p class="dup-m">${esc(meta)}</p>
+      ${u.veces > 1 ? `<p class="dup-v">${ICON.repeat}<span><b>Reportado ${u.veces} veces:</b> ${esc(textoFechas(u.fechas))}</span></p>` : ''}
+      ${u.texto ? `<p class="dup-t" title="${esc(u.texto)}"><span>${esc(u.texto)}</span></p>` : ''}
+      <p class="dup-q">¿Desea reportarlo otra vez?</p>
+      <div class="dup-b"><button type="button" class="btn light sm" data-act="dupNo">No, ya está reportado</button>
+        <button type="button" class="btn ghost sm" data-act="dupSi">${ICON.repeat}Sí, reportar otra vez</button></div>
+      <button type="button" class="dup-l" data-act="dupNuevo">Es una falla diferente</button>
+    </div>`;
+  }
+  const txt = u.decision === 'no' ? `Ya está reportado en <b>${ref}</b>. Queda como No cumple, pero no se crea un hallazgo nuevo.`
+    : u.decision === 'si' ? `Se suma a <b>${ref}</b>: quedará reportado ${u.veces + 1} veces. Escriba abajo cómo está ahora.${(u.fechas || []).length ? `<br><small>Ya se había reportado: ${esc(textoFechas(u.fechas))}.</small>` : ''}`
+    : `Se crea un hallazgo nuevo, aparte de <b>${ref}</b>.`;
+  return `<div class="dup"><div class="dup-r ${u.decision}">${u.decision === 'si' ? ICON.repeat : ICON.check}<p>${txt}</p>
+    <button type="button" class="dup-l" data-act="dupCambiar">Cambiar</button></div></div>`;
+}
+
 /* ---------- Vista: checklist (formato orden de trabajo) ---------- */
 const MOTIVOS = ['Fuga','Sucio o contaminado','Dañado o desgastado','Flojo o falta pieza','Falta lubricación','Ruido o vibración','No funciona','Otro'];
 const CRITICIDAD = ['Baja','Media','Alta'];
@@ -978,9 +1141,14 @@ function rowHTML(a, n, r, l){
 }
 function ncPanel(a, r, l){
   const id = esc(a.id);
+  if (r.dup && r.dup.decision === 'no'){
+    return `<div class="ot-nc"><div class="ot-nc-h"><h4>No cumple: ${esc(a.texto)}</h4></div>
+      <div data-dupslot>${dupBox(r)}</div></div>`;
+  }
   return `<div class="ot-nc">
     <div class="ot-nc-h"><h4>No cumple: ${esc(a.texto)}</h4>
       <p class="meta"><span>Línea: <b>${esc(l.nombre)}</b></span> <span>Frecuencia: <b>${FRECS[frecDe(l)].nombre}</b></span> <span>Detectó: <b>Técnico</b></span> <span>Status: <b class="open">Abierta</b></span></p></div>
+    <div data-dupslot>${dupBox(r)}</div>
     <span class="lbl">¿Por qué no cumple? <i>*</i></span>
     <div class="ot-chips" role="group" data-need="motivo">${MOTIVOS.map(m => `<button type="button" class="ot-chip" data-act="motivo" data-v="${m}" aria-pressed="${r.motivo === m}">${m}</button>`).join('')}</div>
     <label class="lbl" for="d-${id}">Descripción de la falla <i>*</i></label>
@@ -1081,7 +1249,26 @@ async function submitChecklist(){
   if (!oper){ $('#fOper').classList.add('need'); $('#oper').focus(); toast('Escriba el nombre del técnico.', true); return; }
   if (!dr.turno){ $('#fTurno').classList.add('need'); $('#fTurno').scrollIntoView({behavior:'smooth', block:'center'}); toast('Seleccione el turno.', true); return; }
   const faltan = acts.filter(a => !(dr.resp[a.id] && dr.resp[a.id].v));
-  const incompletos = acts.filter(a => { const r = dr.resp[a.id]; return r && r.v === 'nc' && (!r.motivo || !(r.desc || '').trim() || !(r.equipo || '').trim() || !r.tipo); });
+  if (faltan.length){
+    faltan.forEach(a => markRow(a.id));
+    document.getElementById('a-' + faltan[0].id).scrollIntoView({behavior:'smooth', block:'center'});
+    toast(`Faltan ${plural(faltan.length,'actividad','actividades')} por responder.`, true);
+    return;
+  }
+  /* última revisión de repetidos con lo que ya se escribió */
+  let reviso = false;
+  acts.forEach(a => { if (revisaRepetido(d, l, a, dr.resp[a.id])) reviso = true; });
+  if (reviso) saveDrafts(dr);
+  const sinDecidir = acts.filter(a => { const r = dr.resp[a.id]; return r.v === 'nc' && r.dup && !r.dup.decision; });
+  if (sinDecidir.length){
+    acts.filter(a => dr.resp[a.id].v === 'nc').forEach(a => repintaDup(a, dr.resp[a.id], l));
+    sinDecidir.forEach(a => markRow(a.id));
+    document.getElementById('a-' + sinDecidir[0].id).scrollIntoView({behavior:'smooth', block:'center'});
+    toast(sinDecidir.length === 1 ? 'Algo que marcó ya estaba reportado: responda si desea reportarlo otra vez.'
+      : `${sinDecidir.length} cosas que marcó ya estaban reportadas: responda si desea reportarlas otra vez.`, true);
+    return;
+  }
+  const incompletos = acts.filter(a => { const r = dr.resp[a.id]; return r && r.v === 'nc' && !(r.dup && r.dup.decision === 'no') && (!r.motivo || !(r.desc || '').trim() || !(r.equipo || '').trim() || !r.tipo); });
   if (faltan.length || incompletos.length){
     [...faltan, ...incompletos].forEach(a => markRow(a.id));
     const first = [...faltan, ...incompletos].sort((x, y) => acts.indexOf(x) - acts.indexOf(y))[0];
@@ -1092,9 +1279,12 @@ async function submitChecklist(){
   }
   const hall = acts.filter(a => dr.resp[a.id].v === 'nc').map(a => {
     const c = grupoDe(l, a); const r = dr.resp[a.id];
-    return {actividadId:a.id, categoria:c.nombre, actividad:a.texto, motivo:r.motivo, descripcion:r.desc.trim(),
-      equipo:r.equipo.trim(), subequipo:(r.subequipo || '').trim(), tipoFalla:r.tipo, criticidad:r.crit || 'Media',
-      evidencia:(r.evid || '').trim(), observacion:(r.obs || '').trim()};
+    const dec = r.dup && r.dup.decision, ref = r.dup ? {uid:r.dup.uid, folio:r.dup.folio} : null;
+    return {actividadId:a.id, categoria:c.nombre, actividad:a.texto, motivo:r.motivo || '', descripcion:(r.desc || '').trim(),
+      equipo:(r.equipo || '').trim() || l.equipo || l.nombre, subequipo:(r.subequipo || '').trim(), tipoFalla:r.tipo, criticidad:r.crit || 'Media',
+      evidencia:(r.evid || '').trim(), observacion:(r.obs || '').trim(),
+      yaReportado: dec === 'no' ? ref : null,     // no se crea nada nuevo en el dashboard
+      repite: dec === 'si' ? ref : null};         // el dashboard le suma 1 al que ya existía
   });
   const obs = acts.filter(a => dr.resp[a.id].v === 'ok' && (dr.resp[a.id].obs || '').trim())
     .map(a => ({actividad:a.texto, observacion:dr.resp[a.id].obs.trim()}));
@@ -1131,7 +1321,9 @@ function viewDone(d, l){
     <p>${sent ? `Quedó registrado para ${esc(l.nombre)} de ${esc(d.nombre)} el ${esc(fechaLarga(p.fecha))}.`
       : `No hubo conexión con la hoja. Se enviará solo en cuanto el teléfono tenga internet y se vuelva a abrir el checklist. No borre los datos del navegador.`}</p>
     <div class="sum"><div><b class="num">${p.total}</b>actividades</div><div><b class="num" style="color:var(--ok-text)">${p.cumple}</b>cumplen</div><div><b class="num" style="color:${p.noCumple ? 'var(--bad-text)' : 'inherit'}">${p.noCumple}</b>no cumplen</div></div>
-    ${p.hallazgos.length ? `<ul>${p.hallazgos.map(h => `<li><b>${esc(h.motivo)}</b><span>${esc(h.actividad)}: ${esc(h.descripcion)}</span></li>`).join('')}</ul>` : ''}
+    ${p.hallazgos.length ? `<ul>${p.hallazgos.map(h => h.yaReportado
+        ? `<li><b>Ya reportado</b><span>${esc(h.actividad)}: sigue abierto en ${esc(h.yaReportado.folio || 'el dashboard')}, no se creó otro.</span></li>`
+        : `<li><b>${h.repite ? 'Otra vez' : esc(h.motivo)}</b><span>${esc(h.actividad)}: ${esc(h.descripcion)}${h.repite ? ` (se sumó a ${esc(h.repite.folio || 'el hallazgo abierto')})` : ''}</span></li>`).join('')}</ul>` : ''}
     <div class="acts-row"><a class="btn light" href="#/d/${esc(d.id)}">Volver a ${esc(d.nombre)}</a><a class="btn ghost" href="#/">Ir al inicio</a></div>
   </div>`;
 }
@@ -1606,9 +1798,21 @@ $('#app').addEventListener('click', e => {
   }
   const row = t.closest('.ot-row'); if (!row) return;
   const aid = row.dataset.id; const a = l.actividades.find(x => x.id === aid);
+  if (act === 'dupNo' || act === 'dupSi' || act === 'dupNuevo' || act === 'dupCambiar'){
+    const r = dr.resp[aid]; if (!r || !r.dup) return;
+    r.dup.decision = {dupNo:'no', dupSi:'si', dupNuevo:'nuevo', dupCambiar:null}[act];
+    saveDrafts(dr);
+    const wrap = document.createElement('div'); wrap.innerHTML = rowHTML(a, Number(row.dataset.n), r, l);
+    const fresh = wrap.firstElementChild; const pan = fresh.querySelector('.ot-nc'); if (pan) pan.style.animation = 'none';
+    row.replaceWith(fresh);
+    const foco = act === 'dupSi' ? fresh.querySelector('[data-act="desc"]') : fresh.querySelector('[data-act^="dup"]');
+    if (foco) foco.focus({preventScroll:true});
+    return;
+  }
   if (act === 'ans'){
     const v = t.dataset.v; const prev = dr.resp[aid] || {};
     dr.resp[aid] = v === 'nc' ? {...ncDefaults(a, l), ...prev, v} : {...prev, v};
+    if (v === 'nc') revisaRepetido(d, l, a, dr.resp[aid]);
     saveDrafts(dr);
     const wrap = document.createElement('div'); wrap.innerHTML = rowHTML(a, Number(row.dataset.n), dr.resp[aid], l);
     const fresh = wrap.firstElementChild; row.replaceWith(fresh);
@@ -1650,7 +1854,15 @@ $('#app').addEventListener('input', e => {
   saveDrafts(dr);
 });
 $('#app').addEventListener('change', e => {
-  const t = e.target; if (!editing) return;
+  const t = e.target;
+  if (!editing && (t.dataset.act === 'desc' || t.dataset.act === 'nc-equipo')){
+    /* al terminar de escribir la descripción se busca si ya hay algo parecido abierto */
+    const {d, l} = currentDL(); const row = t.closest('.ot-row'); if (!d || !l || !row) return;
+    const a = l.actividades.find(x => x.id === row.dataset.id); const dr = getDraft(d, l);
+    if (a && revisaRepetido(d, l, a, dr.resp[a.id])){ saveDrafts(dr); repintaDup(a, dr.resp[a.id], l); }
+    return;
+  }
+  if (!editing) return;
   if (t.dataset.act === 'gFalla'){
     const p0 = location.hash.replace(/^#\/?/, '').split('/'); const l0 = findL(findD(p0[1]), p0[3]); if (!l0) return;
     const g = grupos(l0).find(x => x.id === t.closest('.ed-cat').dataset.g); if (g){ g.falla = t.value; markDirty(); } return;
